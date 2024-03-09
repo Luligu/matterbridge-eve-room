@@ -1,3 +1,3 @@
 # Matterbridge plugin
 
-Matterbridge eve weather with history.
+Matterbridge eve room with history.
