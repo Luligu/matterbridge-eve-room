@@ -20,10 +20,12 @@
     "matter",
     "matter.js",
     "eve",
-    "weather",
+    "room",
     "temperature",
     "humidity",
-    "pressure",
+    "air quality",
+    "voc",
+    "tvoc",
     "history"
   ],
   "engines": {
