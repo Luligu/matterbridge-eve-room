@@ -24,9 +24,8 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
 
     const history = new MatterHistory(this.log, 'Eve room', { filePath: this.matterbridge.matterbridgeDirectory });
 
-    const room = new MatterbridgeDevice(DeviceTypeDefinition(airQualitySensor));
+    const room = new MatterbridgeDevice(airQualitySensor);
     room.createDefaultIdentifyClusterServer();
-    //room.createDefaultBasicInformationClusterServer('Eve room', '0x84224975', 4874, 'Eve Systems', 0x27, 'Eve Room 20EAM9901', 1416, '3.2.1', 1, '1.1');
     room.createDefaultBasicInformationClusterServer('Eve room', '0x84224975', 4874, 'Eve Systems', 0x27, 'Eve Room 20EAM9901', 1416, '1.2.11', 1, '1.0.0');
     room.createDefaultAirQualityClusterServer(AirQuality.AirQualityType.Good);
     room.createDefaultTvocMeasurementClusterServer();
@@ -71,6 +70,8 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
         room.getClusterServerById(AirQuality.Cluster.id)?.setAirQualityAttribute(airquality);
         room.getClusterServerById(TvocMeasurement.Cluster.id)?.setMeasuredValueAttribute(voc);
         room.getClusterServerById(TemperatureMeasurement.Cluster.id)?.setMeasuredValueAttribute(temperature * 100);
+        room.getClusterServerById(TemperatureMeasurement.Cluster.id)?.setMinMeasuredValueAttribute(minTemperature * 100);
+        room.getClusterServerById(TemperatureMeasurement.Cluster.id)?.setMaxMeasuredValueAttribute(maxTemperature * 100);
         room.getClusterServerById(RelativeHumidityMeasurement.Cluster.id)?.setMeasuredValueAttribute(humidity * 100);
 
         history.setMaxMinTemperature(maxTemperature, minTemperature);
@@ -79,6 +80,10 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
       },
       60 * 1000 - 700,
     );
+  }
+
+  override async onConfigure() {
+    this.log.info('onConfigure called');
   }
 
   override async onShutdown(reason?: string) {
