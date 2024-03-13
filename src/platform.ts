@@ -26,7 +26,8 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
 
     const room = new MatterbridgeDevice(DeviceTypeDefinition(airQualitySensor));
     room.createDefaultIdentifyClusterServer();
-    room.createDefaultBasicInformationClusterServer('Eve room', '0x84224975', 4874, 'Eve Systems', 0x27, 'Eve Room 20EAM9901', 1416, '3.2.1', 1, '1.1');
+    //room.createDefaultBasicInformationClusterServer('Eve room', '0x84224975', 4874, 'Eve Systems', 0x27, 'Eve Room 20EAM9901', 1416, '3.2.1', 1, '1.1');
+    room.createDefaultBasicInformationClusterServer('Eve room', '0x84224975', 4874, 'Eve Systems', 0x27, 'Eve Room 20EAM9901', 1416, '1.2.11', 1, '1.0.0');
     room.createDefaultAirQualityClusterServer(AirQuality.AirQualityType.Good);
     room.createDefaultTvocMeasurementClusterServer();
 
