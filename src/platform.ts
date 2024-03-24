@@ -1,4 +1,4 @@
-import { AirQuality, DeviceTypes, EveHistory, RelativeHumidityMeasurement, TemperatureDisplayUnits, TemperatureMeasurement, airQualitySensor, TvocMeasurement } from 'matterbridge';
+import { AirQuality, DeviceTypes, EveHistory, RelativeHumidityMeasurement, TemperatureDisplayUnits, TemperatureMeasurement, airQualitySensor, TvocMeasurement, PlatformConfig } from 'matterbridge';
 
 import { Matterbridge, MatterbridgeDevice, MatterbridgeAccessoryPlatform, MatterHistory } from 'matterbridge';
 import { AnsiLogger } from 'node-ansi-logger';
@@ -8,8 +8,8 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
   history: MatterHistory | undefined;
   interval: NodeJS.Timeout | undefined;
 
-  constructor(matterbridge: Matterbridge, log: AnsiLogger) {
-    super(matterbridge, log);
+  constructor(matterbridge: Matterbridge, log: AnsiLogger, config: PlatformConfig) {
+    super(matterbridge, log, config);
   }
 
   override async onStart(reason?: string) {
@@ -84,5 +84,6 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
     this.log.info('onShutdown called with reason:', reason ?? 'none');
     await this.history?.close();
     clearInterval(this.interval);
+    await this.unregisterAllDevices();
   }
 }
