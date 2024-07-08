@@ -1,7 +1,6 @@
-import { AirQuality, DeviceTypes, EveHistory, RelativeHumidityMeasurement, TemperatureDisplayUnits, TemperatureMeasurement, airQualitySensor, TvocMeasurement, PlatformConfig } from 'matterbridge';
-
-import { Matterbridge, MatterbridgeDevice, MatterbridgeAccessoryPlatform, MatterHistory } from 'matterbridge';
-import { AnsiLogger } from 'node-ansi-logger';
+import { AirQuality, DeviceTypes, EveHistory, RelativeHumidityMeasurement, TemperatureDisplayUnits, TemperatureMeasurement, airQualitySensor, TvocMeasurement, Matterbridge, MatterbridgeDevice, MatterbridgeAccessoryPlatform, PlatformConfig } from 'matterbridge';
+import { MatterHistory } from 'matterbridge/history';
+import { AnsiLogger } from 'matterbridge/logger';
 
 export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
   room: MatterbridgeDevice | undefined;
@@ -29,11 +28,11 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
     this.room.addDeviceType(DeviceTypes.HUMIDITY_SENSOR);
     this.room.createDefaultRelativeHumidityMeasurementClusterServer(50 * 100);
 
-    //room.createDefaultPowerSourceRechargableBatteryClusterServer(87);
-    //room.createDefaultPowerSourceConfigurationClusterServer(1);
+    // this.room.addDeviceType(powerSource);
+    // this.room.createDefaultPowerSourceRechargableBatteryClusterServer(87);
 
     // Add the EveHistory cluster to the device as last cluster!
-    this.room.createRoomEveHistoryClusterServer(this.history, this.log);
+    this.history.createRoomEveHistoryClusterServer(this.room, this.log);
     this.history.autoPilot(this.room);
 
     await this.registerDevice(this.room);
