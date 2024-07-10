@@ -22,13 +22,13 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
     this.room.createDefaultAirQualityClusterServer(AirQuality.AirQualityType.Good);
     this.room.createDefaultTvocMeasurementClusterServer();
 
-    this.room.addDeviceType(DeviceTypes.TEMPERATURE_SENSOR);
+    // this.room.addDeviceType(DeviceTypes.TEMPERATURE_SENSOR); already include as optional in the airQualitySensor
     this.room.createDefaultTemperatureMeasurementClusterServer(20 * 100);
 
-    this.room.addDeviceType(DeviceTypes.HUMIDITY_SENSOR);
+    // this.room.addDeviceType(DeviceTypes.HUMIDITY_SENSOR); already include as optional in the airQualitySensor
     this.room.createDefaultRelativeHumidityMeasurementClusterServer(50 * 100);
 
-    // this.room.addDeviceType(powerSource);
+    // this.room.addDeviceType(powerSource); the Eve App has problems with this...
     // this.room.createDefaultPowerSourceRechargableBatteryClusterServer(87);
 
     // Add the EveHistory cluster to the device as last cluster!
