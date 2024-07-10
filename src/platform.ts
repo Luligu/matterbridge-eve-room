@@ -1,4 +1,16 @@
-import { AirQuality, DeviceTypes, EveHistory, RelativeHumidityMeasurement, TemperatureDisplayUnits, TemperatureMeasurement, airQualitySensor, TvocMeasurement, Matterbridge, MatterbridgeDevice, MatterbridgeAccessoryPlatform, PlatformConfig } from 'matterbridge';
+import {
+  AirQuality,
+  EveHistory,
+  RelativeHumidityMeasurement,
+  TemperatureDisplayUnits,
+  TemperatureMeasurement,
+  airQualitySensor,
+  TvocMeasurement,
+  Matterbridge,
+  MatterbridgeDevice,
+  MatterbridgeAccessoryPlatform,
+  PlatformConfig,
+} from 'matterbridge';
 import { MatterHistory } from 'matterbridge/history';
 import { AnsiLogger } from 'matterbridge/logger';
 
