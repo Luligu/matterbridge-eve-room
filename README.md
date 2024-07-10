@@ -19,4 +19,3 @@ It create a virtual air quality sensor device (Matter 1.2 so not all controllers
 ### Matterbridge
 
 See the guidelines on [Matterbridge](https://github.com/Luligu/matterbridge/blob/main/README.md) for more information.
-
