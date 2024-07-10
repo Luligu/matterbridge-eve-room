@@ -10,9 +10,9 @@
 
 ---
 
-This plugin shows how to use the Matter history and how to create passive device in matter.js.
+This plugin shows how to use the Matter history and how to create a passive device in matter.js.
 
-It create an air quality sensor device with TVOC, temperature and humidity that continuously changes state.
+It create a virtual air quality sensor device (Matter 1.2 so not all controllers shows it) with air quality, TVOC, temperature and humidity that continuously changes state.
 
 ## Prerequisites
 
