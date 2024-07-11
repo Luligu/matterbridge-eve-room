@@ -2,6 +2,9 @@
 
 [![npm version](https://img.shields.io/npm/v/matterbridge-eve-room.svg)](https://www.npmjs.com/package/matterbridge-eve-room)
 [![npm downloads](https://img.shields.io/npm/dt/matterbridge-eve-room.svg)](https://www.npmjs.com/package/matterbridge-eve-room)
+[![Docker Version](https://img.shields.io/docker/v/luligu/matterbridge?label=docker%20version&sort=semver)](https://hub.docker.com/r/luligu/matterbridge)
+[![Docker Pulls](https://img.shields.io/docker/pulls/luligu/matterbridge.svg)](https://hub.docker.com/r/luligu/matterbridge)
+![Node.js CI](https://github.com/Luligu/matterbridge-eve-room/actions/workflows/build-matterbridge-plugin.yml/badge.svg)
 
 [![power by](https://img.shields.io/badge/powered%20by-matterbridge-blue)](https://www.npmjs.com/package/matterbridge)
 [![power by](https://img.shields.io/badge/powered%20by-matter--history-blue)](https://www.npmjs.com/package/matter-history)
@@ -12,7 +15,9 @@
 
 This plugin shows how to use the Matter history and how to create a passive device in matter.js.
 
-It create a virtual air quality sensor device (Matter 1.2 so not all controllers show it) with air quality, TVOC, temperature and humidity that continuously changes state.
+It creates a virtual air quality sensor device (Matter 1.2 so not all controllers show it) with air quality, TVOC, temperature and humidity that continuously changes state.
+
+If you like this project and find it useful, please consider giving it a star on GitHub at https://github.com/Luligu/matterbridge-eve-room and sponsoring it.
 
 ## Prerequisites
 

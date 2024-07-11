@@ -1,8 +1,6 @@
 import {
   AirQuality,
-  EveHistory,
   RelativeHumidityMeasurement,
-  TemperatureDisplayUnits,
   TemperatureMeasurement,
   airQualitySensor,
   TvocMeasurement,
@@ -11,7 +9,7 @@ import {
   MatterbridgeAccessoryPlatform,
   PlatformConfig,
 } from 'matterbridge';
-import { MatterHistory } from 'matterbridge/history';
+import { TemperatureDisplayUnits, EveHistory, MatterHistory } from 'matterbridge/history';
 import { AnsiLogger } from 'matterbridge/logger';
 
 export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
@@ -21,6 +19,7 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
 
   constructor(matterbridge: Matterbridge, log: AnsiLogger, config: PlatformConfig) {
     super(matterbridge, log, config);
+    this.log.info('Initializing platform:', this.config.name);
   }
 
   override async onStart(reason?: string) {
