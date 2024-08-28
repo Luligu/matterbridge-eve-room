@@ -7,7 +7,7 @@ import {
   MatterbridgeAccessoryPlatform,
   PlatformConfig,
 } from 'matterbridge';
-import { AirQuality, TvocMeasurement } from 'matterbridge';
+import { AirQuality, TvocMeasurement } from 'matterbridge/cluster';
 import { TemperatureDisplayUnits, EveHistory, MatterHistory } from 'matterbridge/history';
 import { AnsiLogger } from 'matterbridge/logger';
 
