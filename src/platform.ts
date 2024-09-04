@@ -6,8 +6,9 @@ import {
   MatterbridgeDevice,
   MatterbridgeAccessoryPlatform,
   PlatformConfig,
+  AirQuality,
+  TotalVolatileOrganicCompoundsConcentrationMeasurement,
 } from 'matterbridge';
-import { AirQuality, TvocMeasurement } from 'matterbridge/cluster';
 import { TemperatureDisplayUnits, EveHistory, MatterHistory } from 'matterbridge/history';
 import { AnsiLogger } from 'matterbridge/logger';
 
@@ -29,7 +30,7 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
     this.room = new MatterbridgeDevice(airQualitySensor);
     this.room.createDefaultIdentifyClusterServer();
     this.room.createDefaultBasicInformationClusterServer('Eve room', '0x84224975', 4874, 'Eve Systems', 0x27, 'Eve Room 20EAM9901', 1416, '1.2.11', 1, '1.0.0');
-    this.room.createDefaultAirQualityClusterServer(AirQuality.AirQualityType.Good);
+    this.room.createDefaultAirQualityClusterServer(AirQuality.AirQualityEnum.Good);
     this.room.createDefaultTvocMeasurementClusterServer();
 
     // this.room.addDeviceType(DeviceTypes.TEMPERATURE_SENSOR); already include as optional in the airQualitySensor
@@ -66,7 +67,7 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
     this.interval = setInterval(
       () => {
         if (!this.room || !this.history) return;
-        const airquality = AirQuality.AirQualityType.Good;
+        const airquality = AirQuality.AirQualityEnum.Good;
         const voc = this.history.getFakeLevel(0, 1000, 0);
         const temperature = this.history.getFakeLevel(10, 30, 2);
         if (minTemperature === 0) minTemperature = temperature;
@@ -75,7 +76,7 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
         maxTemperature = Math.max(maxTemperature, temperature);
         const humidity = this.history.getFakeLevel(1, 99, 2);
         this.room.getClusterServerById(AirQuality.Cluster.id)?.setAirQualityAttribute(airquality);
-        this.room.getClusterServerById(TvocMeasurement.Cluster.id)?.setMeasuredValueAttribute(voc);
+        this.room.getClusterServerById(TotalVolatileOrganicCompoundsConcentrationMeasurement.Cluster.id)?.setMeasuredValueAttribute(voc);
         this.room.getClusterServerById(TemperatureMeasurement.Cluster.id)?.setMeasuredValueAttribute(temperature * 100);
         this.room.getClusterServerById(TemperatureMeasurement.Cluster.id)?.setMinMeasuredValueAttribute(minTemperature * 100);
         this.room.getClusterServerById(TemperatureMeasurement.Cluster.id)?.setMaxMeasuredValueAttribute(maxTemperature * 100);
