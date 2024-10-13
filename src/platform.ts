@@ -9,7 +9,7 @@ import {
   AirQuality,
   TotalVolatileOrganicCompoundsConcentrationMeasurement,
 } from 'matterbridge';
-import { TemperatureDisplayUnits, EveHistory, MatterHistory } from 'matterbridge/history';
+import { TemperatureDisplayUnits, EveHistory, MatterHistory } from 'matter-history';
 import { AnsiLogger } from 'matterbridge/logger';
 
 export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
