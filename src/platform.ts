@@ -8,6 +8,10 @@ import {
   PlatformConfig,
   AirQuality,
   TotalVolatileOrganicCompoundsConcentrationMeasurement,
+  DeviceTypeDefinition,
+  EndpointOptions,
+  AtLeastOne,
+  MatterbridgeEndpoint,
 } from 'matterbridge';
 import { TemperatureDisplayUnits, EveHistory, MatterHistory } from 'matter-history';
 import { AnsiLogger } from 'matterbridge/logger';
@@ -16,14 +20,23 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
   room: MatterbridgeDevice | undefined;
   history: MatterHistory | undefined;
   interval: NodeJS.Timeout | undefined;
+  minTemperature = 0;
+  maxTemperature = 0;
+
+  createMutableDevice(definition: DeviceTypeDefinition | AtLeastOne<DeviceTypeDefinition>, options: EndpointOptions = {}, debug = false): MatterbridgeDevice {
+    let device: MatterbridgeDevice;
+    if (this.matterbridge.edge === true) device = new MatterbridgeEndpoint(definition, options, debug) as unknown as MatterbridgeDevice;
+    else device = new MatterbridgeDevice(definition, options, debug);
+    return device;
+  }
 
   constructor(matterbridge: Matterbridge, log: AnsiLogger, config: PlatformConfig) {
     super(matterbridge, log, config);
 
     // Verify that Matterbridge is the correct version
-    if (this.verifyMatterbridgeVersion === undefined || typeof this.verifyMatterbridgeVersion !== 'function' || !this.verifyMatterbridgeVersion('1.6.0')) {
+    if (this.verifyMatterbridgeVersion === undefined || typeof this.verifyMatterbridgeVersion !== 'function' || !this.verifyMatterbridgeVersion('1.6.6')) {
       throw new Error(
-        `This plugin requires Matterbridge version >= "1.6.0". Please update Matterbridge from ${this.matterbridge.matterbridgeVersion} to the latest version in the frontend."`,
+        `This plugin requires Matterbridge version >= "1.6.6". Please update Matterbridge from ${this.matterbridge.matterbridgeVersion} to the latest version in the frontend."`,
       );
     }
 
@@ -33,18 +46,14 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
   override async onStart(reason?: string) {
     this.log.info('onStart called with reason:', reason ?? 'none');
 
-    this.history = new MatterHistory(this.log, 'Eve room', { filePath: this.matterbridge.matterbridgeDirectory });
+    this.history = new MatterHistory(this.log, 'Eve room', { filePath: this.matterbridge.matterbridgeDirectory, edge: this.matterbridge.edge });
 
-    this.room = new MatterbridgeDevice(airQualitySensor);
+    this.room = this.createMutableDevice([airQualitySensor], { uniqueStorageKey: 'EveRoom' }, this.config.debug as boolean);
     this.room.createDefaultIdentifyClusterServer();
     this.room.createDefaultBasicInformationClusterServer('Eve room', '0x84224975', 4874, 'Eve Systems', 0x27, 'Eve Room 20EAM9901', 1416, '1.2.11', 1, '1.0.0');
     this.room.createDefaultAirQualityClusterServer(AirQuality.AirQualityEnum.Good);
     this.room.createDefaultTvocMeasurementClusterServer();
-
-    // this.room.addDeviceType(DeviceTypes.TEMPERATURE_SENSOR); already include as optional in the airQualitySensor
     this.room.createDefaultTemperatureMeasurementClusterServer(20 * 100);
-
-    // this.room.addDeviceType(DeviceTypes.HUMIDITY_SENSOR); already include as optional in the airQualitySensor
     this.room.createDefaultRelativeHumidityMeasurementClusterServer(50 * 100);
 
     // this.room.addDeviceType(powerSource); the Eve App has problems with this...
@@ -61,7 +70,10 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
       this.history?.logHistory(false);
     });
 
-    this.room.getClusterServerById(EveHistory.Cluster.id)?.setTemperatureDisplayUnitsAttribute(TemperatureDisplayUnits.CELSIUS);
+    this.room.addCommandHandler('triggerEffect', async ({ request: { effectIdentifier, effectVariant } }) => {
+      this.log.warn(`Command triggerEffect called effect ${effectIdentifier} variant ${effectVariant}`);
+      this.history?.logHistory(false);
+    });
 
     this.history.setMaxMinTemperature(20, 20);
   }
@@ -69,30 +81,29 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
   override async onConfigure() {
     this.log.info('onConfigure called');
 
-    let minTemperature = 0;
-    let maxTemperature = 0;
+    if (!this.matterbridge.edge) await this.room?.setAttribute(EveHistory.Cluster.id, 'TemperatureDisplayUnits', TemperatureDisplayUnits.CELSIUS, this.log);
 
     this.interval = setInterval(
-      () => {
+      async () => {
         if (!this.room || !this.history) return;
         const airquality = AirQuality.AirQualityEnum.Good;
         const voc = this.history.getFakeLevel(0, 1000, 0);
         const temperature = this.history.getFakeLevel(10, 30, 2);
-        if (minTemperature === 0) minTemperature = temperature;
-        if (maxTemperature === 0) maxTemperature = temperature;
-        minTemperature = Math.min(minTemperature, temperature);
-        maxTemperature = Math.max(maxTemperature, temperature);
+        if (this.minTemperature === 0) this.minTemperature = temperature;
+        if (this.maxTemperature === 0) this.maxTemperature = temperature;
+        this.minTemperature = Math.min(this.minTemperature, temperature);
+        this.maxTemperature = Math.max(this.maxTemperature, temperature);
         const humidity = this.history.getFakeLevel(1, 99, 2);
-        this.room.getClusterServerById(AirQuality.Cluster.id)?.setAirQualityAttribute(airquality);
-        this.room.getClusterServerById(TotalVolatileOrganicCompoundsConcentrationMeasurement.Cluster.id)?.setMeasuredValueAttribute(voc);
-        this.room.getClusterServerById(TemperatureMeasurement.Cluster.id)?.setMeasuredValueAttribute(temperature * 100);
-        this.room.getClusterServerById(TemperatureMeasurement.Cluster.id)?.setMinMeasuredValueAttribute(minTemperature * 100);
-        this.room.getClusterServerById(TemperatureMeasurement.Cluster.id)?.setMaxMeasuredValueAttribute(maxTemperature * 100);
-        this.room.getClusterServerById(RelativeHumidityMeasurement.Cluster.id)?.setMeasuredValueAttribute(humidity * 100);
+        await this.room.setAttribute(AirQuality.Cluster.id, 'airQuality', airquality);
+        await this.room.setAttribute(TotalVolatileOrganicCompoundsConcentrationMeasurement.Cluster.id, 'measuredValue', voc, this.log);
+        await this.room.setAttribute(TemperatureMeasurement.Cluster.id, 'minMeasuredValue', this.minTemperature * 100, this.log);
+        await this.room.setAttribute(TemperatureMeasurement.Cluster.id, 'maxMeasuredValue', this.maxTemperature * 100, this.log);
+        await this.room.setAttribute(TemperatureMeasurement.Cluster.id, 'measuredValue', temperature * 100, this.log);
+        await this.room.setAttribute(RelativeHumidityMeasurement.Cluster.id, 'measuredValue', humidity * 100, this.log);
 
-        this.history.setMaxMinTemperature(maxTemperature, minTemperature);
+        this.history.setMaxMinTemperature(this.maxTemperature, this.minTemperature);
         this.history.addEntry({ time: this.history.now(), airquality, voc, temperature, humidity });
-        this.log.info(`Set airquality: ${airquality} voc: ${voc} temperature: ${temperature} (min: ${minTemperature} max: ${maxTemperature}) humidity: ${humidity}`);
+        this.log.info(`Set airquality: ${airquality} voc: ${voc} temperature: ${temperature} (min: ${this.minTemperature} max: ${this.maxTemperature}) humidity: ${humidity}`);
       },
       60 * 1000 - 700,
     );
