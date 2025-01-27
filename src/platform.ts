@@ -3,40 +3,30 @@ import {
   TemperatureMeasurement,
   airQualitySensor,
   Matterbridge,
-  MatterbridgeDevice,
   MatterbridgeAccessoryPlatform,
   PlatformConfig,
   AirQuality,
   TotalVolatileOrganicCompoundsConcentrationMeasurement,
-  DeviceTypeDefinition,
-  EndpointOptions,
-  AtLeastOne,
   MatterbridgeEndpoint,
+  powerSource,
 } from 'matterbridge';
 import { TemperatureDisplayUnits, EveHistory, MatterHistory } from 'matter-history';
 import { AnsiLogger } from 'matterbridge/logger';
 
 export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
-  room: MatterbridgeDevice | undefined;
+  room: MatterbridgeEndpoint | undefined;
   history: MatterHistory | undefined;
   interval: NodeJS.Timeout | undefined;
   minTemperature = 0;
   maxTemperature = 0;
 
-  createMutableDevice(definition: DeviceTypeDefinition | AtLeastOne<DeviceTypeDefinition>, options: EndpointOptions = {}, debug = false): MatterbridgeDevice {
-    let device: MatterbridgeDevice;
-    if (this.matterbridge.edge === true) device = new MatterbridgeEndpoint(definition, options, debug) as unknown as MatterbridgeDevice;
-    else device = new MatterbridgeDevice(definition, options, debug);
-    return device;
-  }
-
   constructor(matterbridge: Matterbridge, log: AnsiLogger, config: PlatformConfig) {
     super(matterbridge, log, config);
 
     // Verify that Matterbridge is the correct version
-    if (this.verifyMatterbridgeVersion === undefined || typeof this.verifyMatterbridgeVersion !== 'function' || !this.verifyMatterbridgeVersion('1.6.6')) {
+    if (this.verifyMatterbridgeVersion === undefined || typeof this.verifyMatterbridgeVersion !== 'function' || !this.verifyMatterbridgeVersion('2.1.0')) {
       throw new Error(
-        `This plugin requires Matterbridge version >= "1.6.6". Please update Matterbridge from ${this.matterbridge.matterbridgeVersion} to the latest version in the frontend."`,
+        `This plugin requires Matterbridge version >= "2.1.0". Please update Matterbridge from ${this.matterbridge.matterbridgeVersion} to the latest version in the frontend."`,
       );
     }
 
@@ -48,7 +38,7 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
 
     this.history = new MatterHistory(this.log, 'Eve room', { filePath: this.matterbridge.matterbridgeDirectory, edge: this.matterbridge.edge });
 
-    this.room = this.createMutableDevice([airQualitySensor], { uniqueStorageKey: 'EveRoom' }, this.config.debug as boolean);
+    this.room = new MatterbridgeEndpoint([airQualitySensor, powerSource], { uniqueStorageKey: 'Eve room' }, this.config.debug as boolean);
     this.room.createDefaultIdentifyClusterServer();
     this.room.createDefaultBasicInformationClusterServer('Eve room', '0x84224975', 4874, 'Eve Systems', 0x27, 'Eve Room 20EAM9901', 1416, '1.2.11', 1, '1.0.0');
     this.room.createDefaultAirQualityClusterServer(AirQuality.AirQualityEnum.Good);
@@ -57,7 +47,7 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
     this.room.createDefaultRelativeHumidityMeasurementClusterServer(50 * 100);
 
     // this.room.addDeviceType(powerSource); the Eve App has problems with this...
-    // this.room.createDefaultPowerSourceRechargableBatteryClusterServer(87);
+    this.room.createDefaultPowerSourceRechargeableBatteryClusterServer(87);
 
     // Add the EveHistory cluster to the device as last cluster!
     this.history.createRoomEveHistoryClusterServer(this.room, this.log);
