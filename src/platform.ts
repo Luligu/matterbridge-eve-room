@@ -10,7 +10,7 @@ import {
   MatterbridgeEndpoint,
   powerSource,
 } from 'matterbridge';
-import { TemperatureDisplayUnits, EveHistory, MatterHistory } from 'matter-history';
+import { MatterHistory } from 'matter-history';
 import { AnsiLogger } from 'matterbridge/logger';
 
 export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
@@ -71,7 +71,7 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
   override async onConfigure() {
     this.log.info('onConfigure called');
 
-    if (!this.matterbridge.edge) await this.room?.setAttribute(EveHistory.Cluster.id, 'TemperatureDisplayUnits', TemperatureDisplayUnits.CELSIUS, this.log);
+    // await this.room?.setAttribute(EveHistory.Cluster.id, 'TemperatureDisplayUnits', TemperatureDisplayUnits.CELSIUS, this.log);
 
     this.interval = setInterval(
       async () => {
