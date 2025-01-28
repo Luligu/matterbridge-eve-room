@@ -89,13 +89,13 @@ describe('TestPlatform', () => {
     expect(mockLog.info).toHaveBeenCalledWith('onStart called with reason:', 'Test reason');
     expect(testPlatform.room).toBeDefined();
     if (!testPlatform.room) return;
-    expect(Object.keys(testPlatform.room.behaviors.supported)).toHaveLength(8); // ["descriptor", "matterbridge", "identify", "airQuality", "totalVolatileOrganicCompoundsConcentrationMeasurement", "temperatureMeasurement", "relativeHumidityMeasurement", "powerSource"]
+    expect(Object.keys(testPlatform.room.behaviors.supported)).toHaveLength(9); // ["descriptor", "matterbridge", "identify", "airQuality", "totalVolatileOrganicCompoundsConcentrationMeasurement", "temperatureMeasurement", "relativeHumidityMeasurement", "powerSource", "eveHistory"]
   });
 
   it('should call onConfigure', async () => {
     expect(testPlatform.room).toBeDefined();
     if (!testPlatform.room) return;
-    expect(Object.keys(testPlatform.room.behaviors.supported)).toHaveLength(8); // ["descriptor", "matterbridge", "identify", "airQuality", "totalVolatileOrganicCompoundsConcentrationMeasurement", "temperatureMeasurement", "relativeHumidityMeasurement", "powerSource"]
+    expect(Object.keys(testPlatform.room.behaviors.supported)).toHaveLength(9); // ["descriptor", "matterbridge", "identify", "airQuality", "totalVolatileOrganicCompoundsConcentrationMeasurement", "temperatureMeasurement", "relativeHumidityMeasurement", "powerSource", "eveHistory"]
 
     jest.useFakeTimers();
 
@@ -113,7 +113,7 @@ describe('TestPlatform', () => {
   it('should execute the commandHandlers', async () => {
     expect(testPlatform.room).toBeDefined();
     if (!testPlatform.room) return;
-    expect(Object.keys(testPlatform.room.behaviors.supported)).toHaveLength(8); // ["descriptor", "matterbridge", "identify", "airQuality", "totalVolatileOrganicCompoundsConcentrationMeasurement", "temperatureMeasurement", "relativeHumidityMeasurement", "powerSource"]
+    expect(Object.keys(testPlatform.room.behaviors.supported)).toHaveLength(9); // ["descriptor", "matterbridge", "identify", "airQuality", "totalVolatileOrganicCompoundsConcentrationMeasurement", "temperatureMeasurement", "relativeHumidityMeasurement", "powerSource", "eveHistory"]
 
     await testPlatform.room.executeCommandHandler('identify', { identifyTime: 5 });
     await testPlatform.room.executeCommandHandler('triggerEffect', { effectIdentifier: Identify.EffectIdentifier.Blink, effectVariant: Identify.EffectVariant.Default });
