@@ -1,15 +1,5 @@
-import {
-  RelativeHumidityMeasurement,
-  TemperatureMeasurement,
-  airQualitySensor,
-  Matterbridge,
-  MatterbridgeAccessoryPlatform,
-  PlatformConfig,
-  AirQuality,
-  TotalVolatileOrganicCompoundsConcentrationMeasurement,
-  MatterbridgeEndpoint,
-  powerSource,
-} from 'matterbridge';
+import { airQualitySensor, Matterbridge, MatterbridgeAccessoryPlatform, PlatformConfig, MatterbridgeEndpoint, powerSource } from 'matterbridge';
+import { RelativeHumidityMeasurement, TemperatureMeasurement, AirQuality, TotalVolatileOrganicCompoundsConcentrationMeasurement } from 'matterbridge/matter/clusters';
 import { MatterHistory } from 'matter-history';
 import { AnsiLogger } from 'matterbridge/logger';
 
