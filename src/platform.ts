@@ -1,7 +1,16 @@
 import { airQualitySensor, Matterbridge, MatterbridgeAccessoryPlatform, PlatformConfig, MatterbridgeEndpoint, powerSource } from 'matterbridge';
-import { RelativeHumidityMeasurement, TemperatureMeasurement, AirQuality, TotalVolatileOrganicCompoundsConcentrationMeasurement } from 'matterbridge/matter/clusters';
-import { MatterHistory } from 'matter-history';
+import {
+  RelativeHumidityMeasurement,
+  TemperatureMeasurement,
+  AirQuality,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  TotalVolatileOrganicCompoundsConcentrationMeasurement,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ConcentrationMeasurement,
+} from 'matterbridge/matter/clusters';
+import { EveHistory, MatterHistory, TemperatureDisplayUnits } from 'matter-history';
 import { AnsiLogger } from 'matterbridge/logger';
+import {} from 'matterbridge/matter/clusters';
 
 export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
   room: MatterbridgeEndpoint | undefined;
@@ -14,9 +23,9 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
     super(matterbridge, log, config);
 
     // Verify that Matterbridge is the correct version
-    if (this.verifyMatterbridgeVersion === undefined || typeof this.verifyMatterbridgeVersion !== 'function' || !this.verifyMatterbridgeVersion('2.2.6')) {
+    if (this.verifyMatterbridgeVersion === undefined || typeof this.verifyMatterbridgeVersion !== 'function' || !this.verifyMatterbridgeVersion('3.0.0')) {
       throw new Error(
-        `This plugin requires Matterbridge version >= "2.2.6". Please update Matterbridge from ${this.matterbridge.matterbridgeVersion} to the latest version in the frontend."`,
+        `This plugin requires Matterbridge version >= "3.0.0". Please update Matterbridge from ${this.matterbridge.matterbridgeVersion} to the latest version in the frontend."`,
       );
     }
 
@@ -32,11 +41,12 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
     this.room.createDefaultIdentifyClusterServer();
     this.room.createDefaultBasicInformationClusterServer('Eve room', '0x84224975', 4874, 'Eve Systems', 0x27, 'Eve Room 20EAM9901', 1416, '1.2.11', 1, '1.0.0');
     this.room.createDefaultAirQualityClusterServer(AirQuality.AirQualityEnum.Good);
-    this.room.createDefaultTvocMeasurementClusterServer();
+
+    // The Home app 18.4 has problems with this... the device is not shown in the Home app
+    this.room.createDefaultTvocMeasurementClusterServer(100);
     this.room.createDefaultTemperatureMeasurementClusterServer(20 * 100);
     this.room.createDefaultRelativeHumidityMeasurementClusterServer(50 * 100);
 
-    // this.room.addDeviceType(powerSource); the Eve App has problems with this...
     this.room.createDefaultPowerSourceRechargeableBatteryClusterServer(87);
 
     // Add the EveHistory cluster to the device as last cluster!
@@ -61,7 +71,7 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
   override async onConfigure() {
     this.log.info('onConfigure called');
 
-    // await this.room?.setAttribute(EveHistory.Cluster.id, 'TemperatureDisplayUnits', TemperatureDisplayUnits.CELSIUS, this.log);
+    await this.room?.setAttribute(EveHistory.Cluster.id, 'temperatureDisplayUnits', TemperatureDisplayUnits.CELSIUS, this.log);
 
     this.interval = setInterval(
       async () => {
@@ -75,9 +85,8 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
         this.maxTemperature = Math.max(this.maxTemperature, temperature);
         const humidity = this.history.getFakeLevel(1, 99, 2);
         await this.room.setAttribute(AirQuality.Cluster.id, 'airQuality', airquality);
-        await this.room.setAttribute(TotalVolatileOrganicCompoundsConcentrationMeasurement.Cluster.id, 'measuredValue', voc, this.log);
-        await this.room.setAttribute(TemperatureMeasurement.Cluster.id, 'minMeasuredValue', this.minTemperature * 100, this.log);
-        await this.room.setAttribute(TemperatureMeasurement.Cluster.id, 'maxMeasuredValue', this.maxTemperature * 100, this.log);
+        // await this.room.setAttribute(TotalVolatileOrganicCompoundsConcentrationMeasurement.Cluster.id, 'measuredValue', voc, this.log);
+        // await this.room.setAttribute(TotalVolatileOrganicCompoundsConcentrationMeasurement.Cluster.id, 'levelValue', ConcentrationMeasurement.LevelValue.Low, this.log);
         await this.room.setAttribute(TemperatureMeasurement.Cluster.id, 'measuredValue', temperature * 100, this.log);
         await this.room.setAttribute(RelativeHumidityMeasurement.Cluster.id, 'measuredValue', humidity * 100, this.log);
 
