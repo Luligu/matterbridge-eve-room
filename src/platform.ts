@@ -1,16 +1,7 @@
 import { airQualitySensor, Matterbridge, MatterbridgeAccessoryPlatform, PlatformConfig, MatterbridgeEndpoint, powerSource } from 'matterbridge';
-import {
-  RelativeHumidityMeasurement,
-  TemperatureMeasurement,
-  AirQuality,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  TotalVolatileOrganicCompoundsConcentrationMeasurement,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  ConcentrationMeasurement,
-} from 'matterbridge/matter/clusters';
+import { RelativeHumidityMeasurement, TemperatureMeasurement, AirQuality } from 'matterbridge/matter/clusters';
 import { EveHistory, MatterHistory, TemperatureDisplayUnits } from 'matter-history';
 import { AnsiLogger } from 'matterbridge/logger';
-import {} from 'matterbridge/matter/clusters';
 
 export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
   room: MatterbridgeEndpoint | undefined;
@@ -41,12 +32,9 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
     this.room.createDefaultIdentifyClusterServer();
     this.room.createDefaultBasicInformationClusterServer('Eve room', '0x84224975', 4874, 'Eve Systems', 0x27, 'Eve Room 20EAM9901', 1416, '1.2.11', 1, '1.0.0');
     this.room.createDefaultAirQualityClusterServer(AirQuality.AirQualityEnum.Good);
-
-    // The Home app 18.4 has problems with this... the device is not shown in the Home app
     this.room.createDefaultTvocMeasurementClusterServer(100);
     this.room.createDefaultTemperatureMeasurementClusterServer(20 * 100);
     this.room.createDefaultRelativeHumidityMeasurementClusterServer(50 * 100);
-
     this.room.createDefaultPowerSourceRechargeableBatteryClusterServer(87);
 
     // Add the EveHistory cluster to the device as last cluster!
