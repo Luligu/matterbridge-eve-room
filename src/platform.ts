@@ -26,9 +26,13 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
   override async onStart(reason?: string) {
     this.log.info('onStart called with reason:', reason ?? 'none');
 
-    this.history = new MatterHistory(this.log, 'Eve room', { filePath: this.matterbridge.matterbridgeDirectory });
+    this.history = new MatterHistory(this.log, 'Eve room', { filePath: this.matterbridge.matterbridgeDirectory, enableDebug: this.config.debug as boolean });
 
-    this.room = new MatterbridgeEndpoint([airQualitySensor, powerSource], { uniqueStorageKey: 'Eve room', mode: 'server' }, this.config.debug as boolean);
+    this.room = new MatterbridgeEndpoint(
+      [airQualitySensor, powerSource],
+      { uniqueStorageKey: 'Eve room', mode: this.matterbridge.bridgeMode === 'bridge' ? 'server' : undefined },
+      this.config.debug as boolean,
+    );
     this.room.createDefaultIdentifyClusterServer();
     this.room.createDefaultBasicInformationClusterServer('Eve room', '0x84224975', 4874, 'Eve Systems', 0x27, 'Eve Room 20EAM9901', 1416, '1.2.11', 1, '1.0.0');
     this.room.createDefaultAirQualityClusterServer(AirQuality.AirQualityEnum.Good);
