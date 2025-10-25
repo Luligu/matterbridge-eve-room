@@ -32,12 +32,13 @@ describe('TestPlatform', () => {
   let testPlatform: EveRoomPlatform;
   let log: AnsiLogger;
 
-  const config = {
+  const config: PlatformConfig = {
     name: 'matterbridge-eve-room',
     type: 'AccessoryPlatform',
+    version: '1.0.0',
     unregisterOnShutdown: false,
     debug: false,
-  } as PlatformConfig;
+  };
 
   beforeAll(async () => {
     matterbridge = await createMatterbridgeEnvironment(NAME);
