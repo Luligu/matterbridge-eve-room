@@ -22,7 +22,7 @@
  */
 
 import { airQualitySensor, MatterbridgeAccessoryPlatform, PlatformConfig, MatterbridgeEndpoint, powerSource, PlatformMatterbridge } from 'matterbridge';
-import { RelativeHumidityMeasurement, TemperatureMeasurement, AirQuality, TotalVolatileOrganicCompoundsConcentrationMeasurement } from 'matterbridge/matter/clusters';
+import { RelativeHumidityMeasurement, TemperatureMeasurement, AirQuality, TotalVolatileOrganicCompoundsConcentrationMeasurement, PowerSource } from 'matterbridge/matter/clusters';
 import { EveHistory, MatterHistory, TemperatureDisplayUnits } from 'matter-history';
 import { AnsiLogger } from 'matterbridge/logger';
 
@@ -75,7 +75,7 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
     this.room.createDefaultTvocMeasurementClusterServer(100);
     this.room.createDefaultTemperatureMeasurementClusterServer(20 * 100);
     this.room.createDefaultRelativeHumidityMeasurementClusterServer(50 * 100);
-    this.room.createDefaultPowerSourceRechargeableBatteryClusterServer(87);
+    this.room.createDefaultPowerSourceRechargeableBatteryClusterServer(87, PowerSource.BatChargeLevel.Ok, 1500, PowerSource.BatReplaceability.UserReplaceable);
 
     // Add the EveHistory cluster to the device as last cluster!
     this.history.createRoomEveHistoryClusterServer(this.room, this.log);
