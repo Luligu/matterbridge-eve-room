@@ -79,9 +79,10 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
 
     // Add the EveHistory cluster to the device as last cluster!
     this.history.createRoomEveHistoryClusterServer(this.room, this.log);
-    this.history.autoPilot(this.room);
 
     await this.registerDevice(this.room);
+
+    this.history.autoPilot(this.room);
 
     this.room.addCommandHandler('identify', async ({ request: { identifyTime } }) => {
       this.log.warn(`Command identify called identifyTime:${identifyTime}`);
