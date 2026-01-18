@@ -70,7 +70,18 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
       this.config.debug,
     );
     this.room.createDefaultIdentifyClusterServer();
-    this.room.createDefaultBasicInformationClusterServer('Eve room', '0x84224975', 4874, 'Eve Systems', 0x27, 'Eve Room 20EAM9901', 1416, '1.2.11', 1, '1.0.0');
+    this.room.createDefaultBasicInformationClusterServer(
+      'Eve room' + (this.matterbridge.bridgeMode === 'bridge' ? ' server' : ''),
+      '0x84224975',
+      4874,
+      'Eve Systems',
+      0x27,
+      'Eve Room 20EAM9901',
+      1416,
+      '1.2.11',
+      1,
+      '1.0.0',
+    );
     this.room.createDefaultAirQualityClusterServer(AirQuality.AirQualityEnum.Good);
     this.room.createDefaultTvocMeasurementClusterServer(100);
     this.room.createDefaultTemperatureMeasurementClusterServer(20 * 100);
