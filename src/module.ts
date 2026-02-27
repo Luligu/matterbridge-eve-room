@@ -21,10 +21,10 @@
  * limitations under the License.
  */
 
-import { airQualitySensor, MatterbridgeAccessoryPlatform, PlatformConfig, MatterbridgeEndpoint, powerSource, PlatformMatterbridge } from 'matterbridge';
-import { RelativeHumidityMeasurement, TemperatureMeasurement, AirQuality, TotalVolatileOrganicCompoundsConcentrationMeasurement, PowerSource } from 'matterbridge/matter/clusters';
 import { EveHistory, MatterHistory, TemperatureDisplayUnits } from 'matter-history';
+import { airQualitySensor, MatterbridgeAccessoryPlatform, MatterbridgeEndpoint, PlatformConfig, PlatformMatterbridge, powerSource } from 'matterbridge';
 import { AnsiLogger } from 'matterbridge/logger';
+import { AirQuality, PowerSource, RelativeHumidityMeasurement, TemperatureMeasurement, TotalVolatileOrganicCompoundsConcentrationMeasurement } from 'matterbridge/matter/clusters';
 
 /**
  * This is the standard interface for MatterBridge plugins.
