@@ -110,8 +110,14 @@ describe('TestPlatform', () => {
     if (!testPlatform.room) return;
     expect(Object.keys(testPlatform.room.behaviors.supported)).toHaveLength(9); // ["descriptor", "matterbridge", "identify", "airQuality", "totalVolatileOrganicCompoundsConcentrationMeasurement", "temperatureMeasurement", "relativeHumidityMeasurement", "powerSource", "eveHistory"]
 
-    await testPlatform.room.executeCommandHandler('identify', { identifyTime: 5 });
-    await testPlatform.room.executeCommandHandler('triggerEffect', { effectIdentifier: Identify.EffectIdentifier.Blink, effectVariant: Identify.EffectVariant.Default });
+    await testPlatform.room.executeCommandHandler('identify', { identifyTime: 5 }, 'identify', {} as any, testPlatform.room);
+    await testPlatform.room.executeCommandHandler(
+      'triggerEffect',
+      { effectIdentifier: Identify.EffectIdentifier.Blink, effectVariant: Identify.EffectVariant.Default },
+      'identify',
+      {} as any,
+      testPlatform.room,
+    );
   });
 
   it('should call onShutdown with reason', async () => {
