@@ -20,7 +20,7 @@ import {
 import { LogLevel } from 'matterbridge/logger';
 import { Identify } from 'matterbridge/matter/clusters';
 
-import initializePlugin, { EveRoomPlatform } from './module.ts';
+import initializePlugin, { EveRoomPlatform } from './module.js';
 
 // Setup the test environment
 setupTest(NAME, false);
