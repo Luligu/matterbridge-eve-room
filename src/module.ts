@@ -25,6 +25,7 @@ import { EveHistory, MatterHistory, TemperatureDisplayUnits } from 'matter-histo
 import { airQualitySensor, MatterbridgeAccessoryPlatform, MatterbridgeEndpoint, PlatformConfig, PlatformMatterbridge, powerSource } from 'matterbridge';
 import { AnsiLogger } from 'matterbridge/logger';
 import { AirQuality, PowerSource, RelativeHumidityMeasurement, TemperatureMeasurement, TotalVolatileOrganicCompoundsConcentrationMeasurement } from 'matterbridge/matter/clusters';
+import { fireAndForget } from 'matterbridge/utils';
 
 /**
  * This is the standard interface for MatterBridge plugins.
@@ -95,12 +96,12 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
 
     this.history.autoPilot(this.room);
 
-    this.room.addCommandHandler('identify', async ({ request: { identifyTime } }) => {
+    this.room.addCommandHandler('identify', ({ request: { identifyTime } }) => {
       this.log.warn(`Command identify called identifyTime:${identifyTime}`);
       this.history?.logHistory(false);
     });
 
-    this.room.addCommandHandler('triggerEffect', async ({ request: { effectIdentifier, effectVariant } }) => {
+    this.room.addCommandHandler('triggerEffect', ({ request: { effectIdentifier, effectVariant } }) => {
       this.log.warn(`Command triggerEffect called effect ${effectIdentifier} variant ${effectVariant}`);
       this.history?.logHistory(false);
     });
@@ -115,24 +116,30 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
     await this.room?.setAttribute(EveHistory.Cluster.id, 'temperatureDisplayUnits', TemperatureDisplayUnits.CELSIUS, this.log);
 
     this.interval = setInterval(
-      async () => {
-        if (!this.room || !this.history) return;
-        const airquality = AirQuality.AirQualityEnum.Good;
-        const voc = this.history.getFakeLevel(0, 1000, 0);
-        const temperature = this.history.getFakeLevel(10, 30, 2);
-        if (this.minTemperature === 0) this.minTemperature = temperature;
-        if (this.maxTemperature === 0) this.maxTemperature = temperature;
-        this.minTemperature = Math.min(this.minTemperature, temperature);
-        this.maxTemperature = Math.max(this.maxTemperature, temperature);
-        const humidity = this.history.getFakeLevel(1, 99, 2);
-        await this.room.setAttribute(AirQuality.Cluster.id, 'airQuality', airquality);
-        await this.room.setAttribute(TotalVolatileOrganicCompoundsConcentrationMeasurement.Cluster.id, 'measuredValue', voc, this.log);
-        await this.room.setAttribute(TemperatureMeasurement.Cluster.id, 'measuredValue', temperature * 100, this.log);
-        await this.room.setAttribute(RelativeHumidityMeasurement.Cluster.id, 'measuredValue', humidity * 100, this.log);
+      () => {
+        fireAndForget(
+          (async () => {
+            if (!this.room || !this.history) return;
+            const airquality = AirQuality.AirQualityEnum.Good;
+            const voc = this.history.getFakeLevel(0, 1000, 0);
+            const temperature = this.history.getFakeLevel(10, 30, 2);
+            if (this.minTemperature === 0) this.minTemperature = temperature;
+            if (this.maxTemperature === 0) this.maxTemperature = temperature;
+            this.minTemperature = Math.min(this.minTemperature, temperature);
+            this.maxTemperature = Math.max(this.maxTemperature, temperature);
+            const humidity = this.history.getFakeLevel(1, 99, 2);
+            await this.room.setAttribute(AirQuality.Cluster.id, 'airQuality', airquality);
+            await this.room.setAttribute(TotalVolatileOrganicCompoundsConcentrationMeasurement.Cluster.id, 'measuredValue', voc, this.log);
+            await this.room.setAttribute(TemperatureMeasurement.Cluster.id, 'measuredValue', temperature * 100, this.log);
+            await this.room.setAttribute(RelativeHumidityMeasurement.Cluster.id, 'measuredValue', humidity * 100, this.log);
 
-        this.history.setMaxMinTemperature(this.maxTemperature, this.minTemperature);
-        this.history.addEntry({ time: this.history.now(), airquality, voc, temperature, humidity });
-        this.log.info(`Set airquality: ${airquality} voc: ${voc} temperature: ${temperature} (min: ${this.minTemperature} max: ${this.maxTemperature}) humidity: ${humidity}`);
+            this.history.setMaxMinTemperature(this.maxTemperature, this.minTemperature);
+            this.history.addEntry({ time: this.history.now(), airquality, voc, temperature, humidity });
+            this.log.info(`Set airquality: ${airquality} voc: ${voc} temperature: ${temperature} (min: ${this.minTemperature} max: ${this.maxTemperature}) humidity: ${humidity}`);
+          })(),
+          this.log,
+          'setInterval',
+        );
       },
       60 * 1000 - 700,
     );
