@@ -119,6 +119,7 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
       () => {
         fireAndForget(
           (async () => {
+            // istanbul ignore next - This is a safety check, but in practice this should never happen
             if (!this.room || !this.history) return;
             const airquality = AirQuality.AirQualityEnum.Good;
             const voc = this.history.getFakeLevel(0, 1000, 0);
