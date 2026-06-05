@@ -88,6 +88,7 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
     this.room.createDefaultTemperatureMeasurementClusterServer(20 * 100);
     this.room.createDefaultRelativeHumidityMeasurementClusterServer(50 * 100);
     this.room.createDefaultPowerSourceRechargeableBatteryClusterServer(87, PowerSource.BatChargeLevel.Ok, 1500, PowerSource.BatReplaceability.UserReplaceable);
+    this.room.addRequiredClusters();
 
     // Add the EveHistory cluster to the device as last cluster!
     this.history.createRoomEveHistoryClusterServer(this.room, this.log);
