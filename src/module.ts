@@ -22,8 +22,8 @@
  */
 
 import { EveHistory, MatterHistory, TemperatureDisplayUnits } from 'matter-history';
-import { airQualitySensor, MatterbridgeAccessoryPlatform, MatterbridgeEndpoint, PlatformConfig, PlatformMatterbridge, powerSource } from 'matterbridge';
-import { AnsiLogger } from 'matterbridge/logger';
+import { airQualitySensor, MatterbridgeAccessoryPlatform, MatterbridgeEndpoint, type PlatformConfig, type PlatformMatterbridge, powerSource } from 'matterbridge';
+import type { AnsiLogger } from 'matterbridge/logger';
 import { AirQuality, PowerSource, RelativeHumidityMeasurement, TemperatureMeasurement, TotalVolatileOrganicCompoundsConcentrationMeasurement } from 'matterbridge/matter/clusters';
 import { fireAndForget } from 'matterbridge/utils';
 
@@ -51,19 +51,19 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
     super(matterbridge, log, config);
 
     // Verify that Matterbridge is the correct version
-    if (this.verifyMatterbridgeVersion === undefined || typeof this.verifyMatterbridgeVersion !== 'function' || !this.verifyMatterbridgeVersion('3.8.0')) {
+    if (typeof this.verifyMatterbridgeVersion !== 'function' || !this.verifyMatterbridgeVersion('3.9.0')) {
       throw new Error(
-        `This plugin requires Matterbridge version >= "3.8.0". Please update Matterbridge from ${this.matterbridge.matterbridgeVersion} to the latest version in the frontend."`,
+        `This plugin requires Matterbridge version >= "3.9.0". Please update Matterbridge from ${this.matterbridge.matterbridgeVersion} to the latest version in the frontend."`,
       );
     }
 
     this.log.info('Initializing platform:', this.config.name);
   }
 
-  override async onStart(reason?: string) {
+  override async onStart(reason?: string): Promise<void> {
     this.log.info('onStart called with reason:', reason ?? 'none');
 
-    this.history = new MatterHistory(this.log, 'Eve room', { filePath: this.matterbridge.matterbridgeDirectory, enableDebug: this.config.debug as boolean });
+    this.history = new MatterHistory(this.log, 'Eve room', { filePath: this.matterbridge.matterbridgeDirectory, enableDebug: this.config.debug });
 
     this.room = new MatterbridgeEndpoint(
       [airQualitySensor, powerSource],
@@ -110,16 +110,16 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
     this.history.setMaxMinTemperature(20, 20);
   }
 
-  override async onConfigure() {
+  override async onConfigure(): Promise<void> {
     await super.onConfigure();
     this.log.info('onConfigure called');
 
-    await this.room?.setAttribute(EveHistory.Cluster.id, 'temperatureDisplayUnits', TemperatureDisplayUnits.CELSIUS, this.log);
+    await this.room?.setAttribute(EveHistory, 'temperatureDisplayUnits', TemperatureDisplayUnits.CELSIUS, this.log);
 
     this.interval = setInterval(
       () => {
         fireAndForget(
-          (async () => {
+          (async (): Promise<void> => {
             // istanbul ignore next - This is a safety check, but in practice this should never happen
             if (!this.room || !this.history) return;
             const airquality = AirQuality.AirQualityEnum.Good;
@@ -130,10 +130,10 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
             this.minTemperature = Math.min(this.minTemperature, temperature);
             this.maxTemperature = Math.max(this.maxTemperature, temperature);
             const humidity = this.history.getFakeLevel(1, 99, 2);
-            await this.room.setAttribute(AirQuality.Cluster.id, 'airQuality', airquality);
-            await this.room.setAttribute(TotalVolatileOrganicCompoundsConcentrationMeasurement.Cluster.id, 'measuredValue', voc, this.log);
-            await this.room.setAttribute(TemperatureMeasurement.Cluster.id, 'measuredValue', temperature * 100, this.log);
-            await this.room.setAttribute(RelativeHumidityMeasurement.Cluster.id, 'measuredValue', humidity * 100, this.log);
+            await this.room.setAttribute(AirQuality, 'airQuality', airquality);
+            await this.room.setAttribute(TotalVolatileOrganicCompoundsConcentrationMeasurement, 'measuredValue', voc, this.log);
+            await this.room.setAttribute(TemperatureMeasurement, 'measuredValue', temperature * 100, this.log);
+            await this.room.setAttribute(RelativeHumidityMeasurement, 'measuredValue', humidity * 100, this.log);
 
             this.history.setMaxMinTemperature(this.maxTemperature, this.minTemperature);
             this.history.addEntry({ time: this.history.now(), airquality, voc, temperature, humidity });
@@ -147,11 +147,11 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
     );
   }
 
-  override async onShutdown(reason?: string) {
+  override async onShutdown(reason?: string): Promise<void> {
     await super.onShutdown(reason);
     this.log.info('onShutdown called with reason:', reason ?? 'none');
     await this.history?.close();
     clearInterval(this.interval);
-    if (this.config.unregisterOnShutdown === true) await this.unregisterAllDevices();
+    if (this.config.unregisterOnShutdown) await this.unregisterAllDevices();
   }
 }
