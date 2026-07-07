@@ -1,7 +1,6 @@
 /**
- * This file contains the class EveRoomPlatform.
- *
- * @file module.ts
+ * @file src/module.ts
+ * @description This file contains the class EveRoomPlatform.
  * @author Luca Liguori
  * @version 2.0.0
  * @license Apache-2.0
@@ -120,7 +119,7 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
       () => {
         fireAndForget(
           (async (): Promise<void> => {
-            // istanbul ignore next - This is a safety check, but in practice this should never happen
+            /* v8 ignore next - This is a safety check, but in practice this should never happen */
             if (!this.room || !this.history) return;
             const airquality = AirQuality.AirQualityEnum.Good;
             const voc = this.history.getFakeLevel(0, 1000, 0);
