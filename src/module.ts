@@ -57,11 +57,13 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
       );
     }
 
-    this.log.info('Initializing platform:', this.config.name);
+    this.log.info(`Initializing platform ${this.config.name}...`);
+
+    this.log.info(`Platform ${this.config.name} initialized successfully`);
   }
 
   override async onStart(reason?: string): Promise<void> {
-    this.log.info('onStart called with reason:', reason ?? 'none');
+    this.log.info(`Starting platform ${this.config.name} with reason: ${reason ?? 'no reason provided'}...`);
 
     this.history = new MatterHistory(this.log, 'Eve room', { filePath: this.matterbridge.matterbridgeDirectory, enableDebug: this.config.debug });
 
@@ -108,11 +110,13 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
     });
 
     this.history.setMaxMinTemperature(20, 20);
+
+    this.log.info(`Platform ${this.config.name} started successfully`);
   }
 
   override async onConfigure(): Promise<void> {
     await super.onConfigure();
-    this.log.info('onConfigure called');
+    this.log.info(`Configuring platform ${this.config.name}...`);
 
     await this.room?.setAttribute(EveHistory, 'temperatureDisplayUnits', TemperatureDisplayUnits.CELSIUS, this.log);
 
@@ -145,13 +149,17 @@ export class EveRoomPlatform extends MatterbridgeAccessoryPlatform {
       },
       60 * 1000 - 700,
     );
+
+    this.log.info(`Platform ${this.config.name} configured successfully`);
   }
 
   override async onShutdown(reason?: string): Promise<void> {
     await super.onShutdown(reason);
-    this.log.info('onShutdown called with reason:', reason ?? 'none');
+    this.log.info(`Shutting down platform ${this.config.name} with reason: ${reason ?? 'no reason provided'}...`);
     await this.history?.close();
     clearInterval(this.interval);
     if (this.config.unregisterOnShutdown) await this.unregisterAllDevices();
+
+    this.log.info(`Platform ${this.config.name} shut down successfully`);
   }
 }
